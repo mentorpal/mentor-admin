@@ -25,6 +25,10 @@ exports.onCreateWebpackConfig = ({ stage, loaders, actions }) => {
           test: /xapi/,
           use: loaders.null(),
         },
+        {
+          test: /recordrtc/,
+          use: loaders.null(),
+        },
       ],
     };
   }
