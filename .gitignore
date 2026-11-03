@@ -56,3 +56,5 @@ typings/
 .terraform
 secret.tfvars
 infrastructure/*.out
+
+.superpowers

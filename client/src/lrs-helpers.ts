@@ -7,7 +7,7 @@ The full terms of this copyright and license should always be found in the root 
 import { Statement, Activity } from "@xapi/xapi";
 import { UserQuestionGQL } from "lrs-api";
 // eslint-disable-next-line  @typescript-eslint/no-var-requires
-const dfd = require("danfojs");
+import * as dfd from "danfojs";
 
 type DataSource =
   | "REVOC_Maybe"
