@@ -4,7 +4,6 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-import { navigate } from "gatsby";
 import React, { useMemo } from "react";
 import {
   AppBar,
@@ -56,6 +55,7 @@ import { useWithImportStatus } from "hooks/graphql/use-with-import-status";
 import ImportInProgressDialog from "./import-export/import-in-progress";
 import { useAppSelector } from "store/hooks";
 import { useWithOrganizations } from "hooks/graphql/use-with-organizations";
+import { useNavigate } from "react-router-dom";
 
 const useStyles = makeStyles({ name: { Login } })((theme: Theme) => ({
   toolbar: {
@@ -91,6 +91,8 @@ const useStyles = makeStyles({ name: { Login } })((theme: Theme) => ({
 }));
 
 function Login(props: { classes: Record<string, string> }): JSX.Element {
+  const navigate = useNavigate();
+
   const { classes } = props;
   const [anchorEl, setAnchorEl] = React.useState<
     EventTarget & HTMLButtonElement
@@ -154,6 +156,8 @@ function NavItem(props: {
   link: string;
   onNav?: (cb: () => void) => void;
 }): JSX.Element {
+  const navigate = useNavigate();
+
   return (
     <ListItem
       data-cy={`${props.text.replace(/\s/g, "-")}-menu-button`}
@@ -180,6 +184,8 @@ function NavMenu(props: {
   onNav?: (cb: () => void) => void;
   managesOrgs: boolean;
 }): JSX.Element {
+  const navigate = useNavigate();
+
   const { classes, mentorSubjectsLocked, managesOrgs } = props;
   const { logout, state } = useWithLogin();
   const isSuperManagerPlus = canEditContent(state.user);

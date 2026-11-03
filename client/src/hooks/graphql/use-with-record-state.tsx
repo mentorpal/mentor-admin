@@ -43,11 +43,11 @@ import useQuestions, {
   useQuestionActions,
 } from "store/slices/questions/useQuestions";
 import { useWithUploadStatus } from "./use-with-upload-status";
-import { navigate } from "gatsby";
 import { areAllTasksDoneOrOneFailed } from "./upload-status-helpers";
 import { useWithConfig } from "store/slices/config/useWithConfig";
 import { useAppSelector } from "store/hooks";
 import { PreviousAnswerVersion } from "types-gql";
+import { useNavigate } from "react-router-dom";
 
 export function useWithRecordState(
   accessToken: string,
@@ -59,6 +59,8 @@ export function useWithRecordState(
     poll?: string;
   }
 ): UseWithRecordState {
+  const navigate = useNavigate();
+
   const [answers, setAnswers] = useState<AnswerState[]>([]);
   const [answerIdx, setAnswerIdx] = useState<number>(0);
   const [isSaving, setIsSaving] = useState<boolean>(false);

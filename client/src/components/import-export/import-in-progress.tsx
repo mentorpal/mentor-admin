@@ -23,7 +23,7 @@ import {
 import { useWithLogin } from "store/slices/login/useWithLogin";
 import useActiveMentor from "store/slices/mentor/useActiveMentor";
 import { isImportComplete } from "hooks/graphql/use-with-import-status";
-import { navigate } from "@gatsbyjs/reach-router";
+import { useNavigate } from "react-router-dom";
 
 const useStyles = makeStyles({ name: { ImportInProgressDialog } })(() => ({
   progressIcon: {
@@ -46,6 +46,8 @@ const useStyles = makeStyles({ name: { ImportInProgressDialog } })(() => ({
 export default function ImportInProgressDialog(props: {
   importTask: ImportTask;
 }): JSX.Element {
+  const navigate = useNavigate();
+
   const { logout } = useWithLogin();
   const { classes } = useStyles();
   const { loadMentor } = useActiveMentor();
@@ -144,7 +146,7 @@ export default function ImportInProgressDialog(props: {
   function onClose() {
     loadMentor();
     setOpen(false);
-    navigate("/admin/");
+    navigate("/");
   }
 
   return (

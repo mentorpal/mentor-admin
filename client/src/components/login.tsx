@@ -22,7 +22,7 @@ import { OverridableTokenClientConfig } from "@react-oauth/google";
 import { MentorConfig } from "types-gql";
 import { LoginType } from "types";
 import { LoginRejectedReason } from "store/slices/login";
-import { navigate } from "gatsby";
+import { useNavigate } from "react-router-dom";
 
 const useStyles = makeStyles({ name: { LoginPage } })((theme: Theme) => ({
   toolbar: {
@@ -51,6 +51,8 @@ function LoginPage(props: {
   mentorConfig?: MentorConfig;
   loginType: LoginType;
 }): JSX.Element {
+  const navigate = useNavigate();
+
   const { mentorConfig, loginType } = props;
   const { classes } = useStyles();
   const { state: configState, loadConfig } = useWithConfig();

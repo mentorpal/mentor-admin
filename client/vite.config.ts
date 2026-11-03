@@ -1,6 +1,23 @@
+import fs from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { defineConfig, loadEnv } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import tsconfigPaths from "vite-tsconfig-paths";
+
+const srcDir = path.resolve(
+  path.dirname(fileURLToPath(import.meta.url)),
+  "src"
+);
+
+function srcAliases(): Record<string, string> {
+  const alias: Record<string, string> = {};
+  for (const name of fs.readdirSync(srcDir)) {
+    const key = name.replace(/\.(tsx|ts|jsx|js)$/, "");
+    alias[key] = path.resolve(srcDir, name);
+  }
+  return alias;
+}
 
 export const ENV_KEYS = [
   "GRAPHQL_ENDPOINT",
@@ -31,6 +48,15 @@ export default defineConfig(({ mode }) => {
 
   return {
     plugins: [react(), tsconfigPaths()],
+    resolve: {
+      alias: {
+        ...srcAliases(),
+        danfojs: path.resolve(
+          srcDir,
+          "../node_modules/danfojs/dist/danfojs-browser/src/index.js"
+        ),
+      },
+    },
     base: "/admin/",
     publicDir: "static",
     server: {
@@ -43,7 +69,7 @@ export default defineConfig(({ mode }) => {
     },
     define,
     optimizeDeps: {
-      include: ["recordrtc", "videojs-record", "danfojs"],
+      include: ["recordrtc", "videojs-record"],
     },
   };
 });

@@ -5,7 +5,6 @@ Permission to use, copy, modify, and distribute this software and its documentat
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 import { useReducer, useState } from "react";
-import { navigate } from "gatsby";
 import { v4 as uuid } from "uuid";
 
 import { addOrUpdateSubjectQuestions, fetchFollowUpQuestions } from "api";
@@ -21,6 +20,7 @@ import {
   FollowupsActionType,
 } from "./followups-reducer";
 import { useWithConfig } from "store/slices/config/useWithConfig";
+import { useNavigate } from "react-router-dom";
 
 export interface UseWithFollowups {
   mentorId?: string;
@@ -39,6 +39,8 @@ export function useWithFollowups(props: {
   categoryId: string;
   subjectId: string;
 }): UseWithFollowups {
+  const navigate = useNavigate();
+
   const [followUpQuestions, setFollowUpQuestions] = useState<string[]>();
   const [state, dispatch] = useReducer(FollowupsReducer, {
     status: FollowupsPageStatusType.INIT,

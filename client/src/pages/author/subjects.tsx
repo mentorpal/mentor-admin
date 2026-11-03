@@ -4,7 +4,6 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-import { Link, navigate } from "gatsby";
 import React, { useEffect, useState } from "react";
 import {
   AppBar,
@@ -35,6 +34,7 @@ import { LoadingDialog, ErrorDialog } from "components/dialog";
 import { convertSubjectGQL } from "types-gql";
 import { useWithLogin } from "store/slices/login/useWithLogin";
 import { canEditContent } from "helpers";
+import { Link, useNavigate } from "react-router-dom";
 
 const useStyles = makeStyles({ name: { SubjectsPage } })((theme: Theme) => ({
   root: {
@@ -106,6 +106,8 @@ function SubjectItem(props: { subject: Subject }): JSX.Element {
 }
 
 function SubjectsPage(): JSX.Element {
+  const navigate = useNavigate();
+
   const { classes } = useStyles();
   const {
     getData,

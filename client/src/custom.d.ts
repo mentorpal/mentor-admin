@@ -9,3 +9,6 @@ declare module "*.png";
 declare module "*.jpeg";
 declare module "*.gif";
 declare module "components/record/virtual-bg.jpg";
+
+declare module "video.js";
+declare module "videojs-record/dist/videojs.record.js";

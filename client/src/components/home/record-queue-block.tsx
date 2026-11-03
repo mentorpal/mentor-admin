@@ -23,12 +23,12 @@ import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import clsx from "clsx";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import CloseIcon from "@mui/icons-material/Close";
-import { navigate } from "gatsby-link";
 import { urlBuild } from "helpers";
 import { Answer } from "types";
 import useQuestions from "store/slices/questions/useQuestions";
 import useActiveMentor from "store/slices/mentor/useActiveMentor";
 import { QuestionState } from "store/slices/questions";
+import { useNavigate } from "react-router-dom";
 
 export default function RecordQueueBlock(props: {
   classes: Record<string, string>;
@@ -37,6 +37,8 @@ export default function RecordQueueBlock(props: {
   removeFromQueue: (questionId: string) => void;
   expandLists: boolean;
 }): JSX.Element {
+  const navigate = useNavigate();
+
   const { recordQueue, removeFromQueue } = props;
   const { getData } = useActiveMentor();
   const mentorAnswers: Answer[] = getData((state) => state.data?.answers);

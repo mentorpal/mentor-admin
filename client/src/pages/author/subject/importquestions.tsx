@@ -31,11 +31,11 @@ import {
   Topic,
   UtteranceName,
 } from "types";
-import { navigate } from "gatsby";
 import { SubjectGQL, SubjectQuestionGQL, UseDefaultTopics } from "types-gql";
 import ImportedQuestionItem from "components/author/import-questions/imported-question-item";
 import IgnoredQuestionItem from "components/author/import-questions/ignored-question-item";
 import Papa from "papaparse";
+import { useNavigate } from "react-router-dom";
 
 const useStyles = makeStyles({ name: { ImportQuestionsPage } })(
   (theme: Theme) => ({
@@ -364,6 +364,7 @@ export function ImportQuestionsPage(props: {
   accessToken: string;
   search: { id?: string };
 }): JSX.Element {
+  const navigate = useNavigate();
   const { classes } = useStyles();
   const { getData, isLoading: isMentorLoading } = useActiveMentor();
   const mentorId = getData((state) => state.data?._id);

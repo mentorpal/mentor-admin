@@ -20,7 +20,6 @@ import {
   Theme,
 } from "@mui/material";
 import { exportMentor } from "api";
-import { navigate } from "gatsby";
 import {
   isDateWithinLastMonth,
   canEditUserRole,
@@ -40,6 +39,7 @@ import {
   Launch as LaunchIcon,
 } from "@mui/icons-material";
 import { v4 as uuid } from "uuid";
+import { useNavigate } from "react-router-dom";
 const useStyles = makeStyles({ name: { UserItem } })((theme: Theme) => ({
   dropdown: {
     width: 170,
@@ -62,6 +62,8 @@ export function UserItem(props: {
   mentorTrainStatusDict: Record<string, JobState>;
   addMentorToPoll: (m: Mentor) => void;
 }): JSX.Element {
+  const navigate = useNavigate();
+
   const { edge, i, user, orgs, mentorTrainStatusDict, addMentorToPoll } = props;
   const { classes: styles } = useStyles();
   const { switchActiveMentor } = useActiveMentor();

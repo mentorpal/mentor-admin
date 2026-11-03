@@ -8,12 +8,14 @@ import React from "react";
 import { Typography, Button } from "@mui/material";
 import { Mentor } from "types";
 import { Slide } from "./slide";
-import { navigate } from "@gatsbyjs/reach-router";
+import { useNavigate } from "react-router-dom";
 
 export function FinalSetupSlide(props: {
   classes: Record<string, string>;
   mentor: Mentor;
 }): JSX.Element {
+  const navigate = useNavigate();
+
   const { classes, mentor } = props;
   function renderMessage(): JSX.Element {
     return (
@@ -48,7 +50,7 @@ export function FinalSetupSlide(props: {
               className={classes.button}
               style={{ width: "150px" }}
               onClick={() => {
-                navigate("/admin");
+                navigate("/");
               }}
             >
               My Mentor

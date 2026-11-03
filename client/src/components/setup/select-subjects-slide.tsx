@@ -4,16 +4,18 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-import { navigate } from "gatsby";
 import React from "react";
 import { Typography, Button } from "@mui/material";
 import { Slide } from "./slide";
 import { urlBuild } from "helpers";
+import { useNavigate } from "react-router-dom";
 
 export function SelectSubjectsSlide(props: {
   classes: Record<string, string>;
   i: number;
 }): JSX.Element {
+  const navigate = useNavigate();
+
   const { classes, i } = props;
 
   function onClick() {
