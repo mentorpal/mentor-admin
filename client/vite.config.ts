@@ -41,7 +41,9 @@ export default defineConfig(({ mode }) => {
     }
   }
 
-  const define: Record<string, string> = {};
+  const define: Record<string, string> = {
+    global: "globalThis",
+  };
   for (const key of ENV_KEYS) {
     define[`process.env.${key}`] = JSON.stringify(env[key] ?? "");
   }
@@ -69,7 +71,18 @@ export default defineConfig(({ mode }) => {
     },
     define,
     optimizeDeps: {
-      include: ["recordrtc", "videojs-record", "url-join"],
+      include: [
+        "recordrtc",
+        "videojs-record",
+        "url-join",
+        "draft-js",
+        "react-draft-wysiwyg",
+      ],
+      esbuildOptions: {
+        define: {
+          global: "globalThis",
+        },
+      },
     },
   };
 });
