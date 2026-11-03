@@ -5,15 +5,15 @@
   "private": true,
   "author": "Kayla Carr",
   "keywords": [
-    "gatsby"
+    "vite"
   ],
   "scripts": {
     "format": "prettier --write '**/*.{js,jsx,json,ts,tsx}'",
-    "develop": "gatsby develop",
-    "start": "gatsby develop",
-    "build": "NODE_OPTIONS=--max_old_space_size=4096 npx gatsby build --prefix-paths",
-    "serve": "gatsby serve --prefix-paths",
-    "clean": "gatsby clean",
+    "develop": "vite --port 3000",
+    "start": "vite --port 3000",
+    "build": "NODE_OPTIONS=--max_old_space_size=4096 vite build && node scripts/copy-spa-html.mjs",
+    "serve": "vite preview --port 3000 --base /admin/",
+    "clean": "rm -rf public",
     "test:audit": "npm audit --production --audit-level=moderate",
     "test:lint": "eslint src --ext ts --ext tsx --ext js --ext jsx --max-warnings 0",
     "test:types": "tsc --noEmit"
@@ -75,7 +75,9 @@
     "url-join": "^4.0.1",
     "use-indexeddb": "^2.0.2",
     "uuid": "^8.3.2",
-    "videojs-record": "^4.6.0"
+    "videojs-record": "^4.6.0",
+    "react-router-dom": "^6.28.0",
+    "query-string": "^6.14.1"
   },
   "devDependencies": {
     "@types/node": "^18.11.18",
@@ -98,6 +100,11 @@
     "gatsby-plugin-sitemap": "^6.5.0",
     "gatsby-plugin-typescript": "^5.5.0",
     "immutable": "^4.2.2",
-    "typescript": "^4.9.4"
+    "typescript": "^4.9.4",
+    "vite": "^6.0.0",
+    "@vitejs/plugin-react-swc": "^3.7.0",
+    "vite-tsconfig-paths": "^5.0.0",
+    "@types/react": "^18.2.0",
+    "@types/react-dom": "^18.2.0"
   }
 }

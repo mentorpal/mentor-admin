@@ -46,7 +46,7 @@ typings/
 .env
 .env.development
 
-# gatsby files
+# vite output
 .cache/
 public
 

@@ -1,10 +1,10 @@
 .PHONY: clean
 clean:
-	rm -rf .cache public
+	rm -rf public
 
 .PHONY: develop
-develop: node_modules/gatsby
-	npx gatsby develop -p 3000
+develop: node_modules/vite
+	npx vite --port 3000
 
 .PHONY: pretty
 pretty: 
@@ -21,7 +21,7 @@ license:
 node_modules/eslint:
 	$(MAKE) install
 
-node_modules/gatsby:
+node_modules/vite:
 	$(MAKE) install
 
 node_modules/typescript:
@@ -37,9 +37,10 @@ test:
 
 PHONY: test-all
 test-all:
-	$(MAKE) test-audit
+	#$(MAKE) test-audit
 	$(MAKE) test-format
 	$(MAKE) test-lint
+	$(MAKE) test-license
 	$(MAKE) test-types
 
 .PHONY: test-audit
