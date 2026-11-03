@@ -104,9 +104,7 @@ describe("Login", () => {
     cy.contains("Welcome to MentorStudio!");
     cy.get("[data-cy=login-option]").trigger("mouseover").click();
     cy.get("[data-cy=logout-button]").trigger("mouseover").click();
-    cy.location("pathname").then(($el) => {
-      assert($el.replace("/admin", ""), "/");
-    });
+    cy.location("pathname").should("be.oneOf", ["/admin", "/admin/"]);
     cy.contains("Please sign in to access the Mentor Studio portal");
     cy.get("[data-cy=nav-bar]").should("not.exist");
   });
