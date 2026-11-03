@@ -61,22 +61,7 @@ import {
   UploadTaskGQL,
   UserQuestionGQL,
 } from "types-gql";
-function joinUrl(base: string | undefined, ...paths: string[]): string {
-  const root = base ?? "";
-  const dummy = "https://placeholder.invalid";
-  const url = new URL(root || "/", dummy);
-  for (const path of paths) {
-    const segment = path.replace(/^\/+/, "");
-    if (!segment) {
-      continue;
-    }
-    url.pathname = `${url.pathname.replace(/\/+$/, "")}/${segment}`;
-  }
-  if (/^[a-z][a-z0-9+.-]*:/i.test(root)) {
-    return url.toString();
-  }
-  return `${url.pathname}${url.search}${url.hash}`;
-}
+import urljoin from "url-join";
 
 export const CLIENT_ENDPOINT = process.env.CLIENT_ENDPOINT || "/chat";
 export const GRAPHQL_ENDPOINT =
@@ -242,8 +227,8 @@ export async function fetchFollowUpQuestions(
 ): Promise<FollowUpQuestion[]> {
   return execHttp<FollowUpQuestion[]>(
     "POST",
-    joinUrl(
-      classifierLambdaEndpoint,
+    urljoin(
+      classifierLambdaEndpoint ?? "",
       "followups",
       "category",
       categoryId,
@@ -1319,7 +1304,7 @@ export async function sbertEncodeSentences(
 ): Promise<SbertEncodedSentence[]> {
   return execHttp<SbertEncodedSentence[]>(
     "POST",
-    joinUrl(SBERT_ENDPOINT, "v1", "encode", "multiple_encode"),
+    urljoin(SBERT_ENDPOINT, "v1", "encode", "multiple_encode"),
     {
       axiosConfig: {
         data: { sentences: sentences },
@@ -1730,7 +1715,7 @@ export async function trainMentor(
   classifierLambdaEndpoint?: string,
   ping?: boolean
 ): Promise<AsyncJob> {
-  return execHttp("POST", joinUrl(classifierLambdaEndpoint, "train"), {
+  return execHttp("POST", urljoin(classifierLambdaEndpoint ?? "", "train"), {
     axiosConfig: {
       data: { mentor: mentorId, ping: ping || false },
     },
@@ -1759,7 +1744,7 @@ export async function uploadThumbnail(
   const data = new FormData();
   data.append("body", JSON.stringify({ mentor: mentorId }));
   data.append("thumbnail", thumbnail);
-  return execHttp("POST", joinUrl(uploadLambdaEndpoint, "/thumbnail"), {
+  return execHttp("POST", urljoin(uploadLambdaEndpoint, "/thumbnail"), {
     axiosConfig: {
       data: data,
       headers: {
@@ -1787,7 +1772,7 @@ export async function uploadVtt(
   data.append("question", questionId);
   data.append("mentor", mentorId);
   data.append("vtt_file", vtt);
-  return execHttp("POST", joinUrl(uploadLambdaEndpoint, "/vtt"), {
+  return execHttp("POST", urljoin(uploadLambdaEndpoint, "/vtt"), {
     axiosConfig: {
       data: data,
       headers: {
@@ -1808,7 +1793,7 @@ export async function uploadVbg(
   const data = new FormData();
   data.append("body", JSON.stringify({ mentor: mentorId }));
   data.append("background_image", vbg);
-  return execHttp("POST", joinUrl(uploadLambdaEndpoint, "/vbg"), {
+  return execHttp("POST", urljoin(uploadLambdaEndpoint, "/vbg"), {
     axiosConfig: {
       data: data,
       headers: {
@@ -1829,7 +1814,7 @@ export async function uploadHeaderImg(
   const data = new FormData();
   data.append("body", JSON.stringify({ org: org }));
   data.append("image", img);
-  return execHttp("POST", joinUrl(uploadLambdaEndpoint, "/header"), {
+  return execHttp("POST", urljoin(uploadLambdaEndpoint, "/header"), {
     axiosConfig: {
       data: data,
       headers: {
@@ -1851,7 +1836,7 @@ export async function uploadFooterImg(
   const data = new FormData();
   data.append("body", JSON.stringify({ org: org, idx: idx }));
   data.append("image", img);
-  return execHttp("POST", joinUrl(uploadLambdaEndpoint, "/footer"), {
+  return execHttp("POST", urljoin(uploadLambdaEndpoint, "/footer"), {
     axiosConfig: {
       data: data,
       headers: {
@@ -1871,7 +1856,7 @@ export async function regenerateVTTForQuestion(
 ): Promise<RegenVttResponse> {
   return execHttp<RegenVttResponse>(
     "POST",
-    joinUrl(uploadLambdaEndpoint, "/regen_vtt"),
+    urljoin(uploadLambdaEndpoint, "/regen_vtt"),
     {
       axiosConfig: {
         data: JSON.stringify({
@@ -1898,7 +1883,7 @@ export async function uploadVideo(
 ): Promise<UploadProcessAsyncJob> {
   const presignedUrl: PresignedUrlResponse = await execHttp(
     "GET",
-    joinUrl(uploadLambdaEndpoint, "/upload/url"),
+    urljoin(uploadLambdaEndpoint, "/upload/url"),
     {
       accessToken,
     }
@@ -1941,7 +1926,7 @@ export async function uploadVideo(
     throw new Error(`Failed to upload video: ${err}`);
   });
 
-  return execHttp("POST", joinUrl(uploadLambdaEndpoint, "/upload/answer"), {
+  return execHttp("POST", urljoin(uploadLambdaEndpoint, "/upload/answer"), {
     axiosConfig: {
       data: JSON.stringify({
         mentor: mentorId,
@@ -2632,19 +2617,23 @@ export async function importMentor(
   accessToken: string,
   uploadLambdaEndpoint?: string
 ): Promise<void> {
-  return execHttp("POST", joinUrl(uploadLambdaEndpoint, "/transfer/mentor"), {
-    axiosConfig: {
-      data: JSON.stringify({
-        mentor: mentor,
-        mentorExportJson: json,
-        replacedMentorDataChanges: replacedMentorDataChanges,
-      }),
-      headers: {
-        "Content-Type": "application/json",
+  return execHttp(
+    "POST",
+    urljoin(uploadLambdaEndpoint ?? "", "/transfer/mentor"),
+    {
+      axiosConfig: {
+        data: JSON.stringify({
+          mentor: mentor,
+          mentorExportJson: json,
+          replacedMentorDataChanges: replacedMentorDataChanges,
+        }),
+        headers: {
+          "Content-Type": "application/json",
+        },
       },
-    },
-    accessToken,
-  });
+      accessToken,
+    }
+  );
 }
 
 export async function fetchMentors(

@@ -69,7 +69,7 @@ export default defineConfig(({ mode }) => {
     },
     define,
     optimizeDeps: {
-      include: ["recordrtc", "videojs-record"],
+      include: ["recordrtc", "videojs-record", "url-join"],
     },
   };
 });
