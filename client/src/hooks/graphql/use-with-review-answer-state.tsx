@@ -5,7 +5,6 @@ Permission to use, copy, modify, and distribute this software and its documentat
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 import { useEffect, useState } from "react";
-import { navigate } from "gatsby";
 import { v4 as uuid } from "uuid";
 import { addOrUpdateSubjectQuestions, isValidObjectID } from "api";
 import {
@@ -30,6 +29,7 @@ import {
 import { SubjectQuestionGQL, UseDefaultTopics } from "types-gql";
 import { LoadingError } from "./loading-reducer";
 import { useWithConfig } from "store/slices/config/useWithConfig";
+import { useNavigate } from "react-router-dom";
 
 interface Progress {
   complete: number;
@@ -81,6 +81,8 @@ export function useWithReviewAnswerState(
   accessToken: string,
   search: { subject?: string }
 ): UseWithReviewAnswerState {
+  const navigate = useNavigate();
+
   const [error, setError] = useState<LoadingError>();
   const [selectedSubject, setSelectedSubject] = useState<string | undefined>(
     search.subject

@@ -29,7 +29,7 @@ import { onTextInputChanged } from "helpers";
 import { useWithWindowSize } from "hooks/use-with-window-size";
 import { SubjectTypes } from "types";
 import { updateSubject } from "api";
-import { navigate } from "gatsby";
+import { useNavigate } from "react-router-dom";
 
 const useStyles = makeStyles({ name: { SubjectPage } })((theme: Theme) => ({
   root: {
@@ -60,6 +60,8 @@ function SubjectPage(props: {
   accessToken: string;
   search: { id?: string };
 }): JSX.Element {
+  const navigate = useNavigate();
+
   const { classes } = useStyles();
   const [tab, setTab] = useState<string>("1");
   const [deleteSubjectDialog, setDeleteSubjectDialog] =

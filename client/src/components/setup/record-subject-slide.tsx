@@ -4,13 +4,13 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-import { navigate } from "gatsby";
 import React from "react";
 import { Typography, Button } from "@mui/material";
 import { Subject, Answer, MentorType, UploadTaskStatuses } from "types";
 import { Slide } from "./slide";
 import { getValueIfKeyExists, isAnswerComplete, urlBuild } from "helpers";
 import { useAppSelector } from "store/hooks";
+import { useNavigate } from "react-router-dom";
 
 export function RecordSubjectSlide(props: {
   classes: Record<string, string>;
@@ -20,6 +20,8 @@ export function RecordSubjectSlide(props: {
   i: number;
   customTitle?: string; // pass in optional slide title
 }): JSX.Element {
+  const navigate = useNavigate();
+
   const { classes, subject, answers, i } = props;
   const uploads = useAppSelector(
     (state) => state.uploadStatus.uploadsInProgress

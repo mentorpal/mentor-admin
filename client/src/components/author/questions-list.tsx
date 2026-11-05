@@ -30,9 +30,9 @@ import { useWithQuestions } from "hooks/graphql/use-with-questions";
 import { NewQuestionArgs } from "hooks/graphql/use-with-subject";
 import { useWithWindowSize } from "hooks/use-with-window-size";
 import { SearchParams } from "hooks/graphql/use-with-data-connection";
-import { navigate } from "gatsby";
 import { TwoOptionDialog } from "components/dialog";
 import { RowDiv } from "components/styled-components";
+import { useNavigate } from "react-router-dom";
 
 export function QuestionsList(props: {
   isSubjectEdited: boolean;
@@ -51,6 +51,8 @@ export function QuestionsList(props: {
   removeQuestion: (val: SubjectQuestionGQL) => void;
   moveQuestion: (toMove: string, moveTo: number, category?: string) => void;
 }): JSX.Element {
+  const navigate = useNavigate();
+
   const {
     classes,
     questions,

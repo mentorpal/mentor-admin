@@ -380,11 +380,11 @@ describe("Edit subject", () => {
     cy.get("[data-cy=video-length]").within(($input) => {
       cy.get("input").should("have.value", "0");
     });
-    cy.get("[data-cy=video-length]").clear().type("test");
+    cy.get("[data-cy=video-length]").find("input").clear().type("test");
     cy.get("[data-cy=video-length]").within(($input) => {
       cy.get("input").should("have.value", "0");
     });
-    cy.get("[data-cy=video-length]").clear().type("10.2");
+    cy.get("[data-cy=video-length]").find("input").clear().type("10.2");
     cy.get("[data-cy=video-length]").within(($input) => {
       cy.get("input").should("have.value", "10");
     });

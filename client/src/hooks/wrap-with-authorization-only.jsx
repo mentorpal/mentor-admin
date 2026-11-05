@@ -4,16 +4,18 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-import { navigate } from "gatsby";
 import React from "react";
 import { CircularProgress, Typography } from "@mui/material";
 
 import NavBar from "components/nav-bar";
 import { useWithLogin } from "store/slices/login/useWithLogin";
 import { LoginStatus } from "store/slices/login";
+import { useNavigate } from "react-router-dom";
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 const withAuthorizationOnly = (Component) => (props) => {
+  const navigate = useNavigate();
+
   const { state: loginState } = useWithLogin();
   if (loginState.isDisabled) {
     return (

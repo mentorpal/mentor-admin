@@ -61,8 +61,7 @@ import {
   UploadTaskGQL,
   UserQuestionGQL,
 } from "types-gql";
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const urljoin = require("url-join");
+import urljoin from "url-join";
 
 export const CLIENT_ENDPOINT = process.env.CLIENT_ENDPOINT || "/chat";
 export const GRAPHQL_ENDPOINT =
@@ -229,7 +228,7 @@ export async function fetchFollowUpQuestions(
   return execHttp<FollowUpQuestion[]>(
     "POST",
     urljoin(
-      classifierLambdaEndpoint,
+      classifierLambdaEndpoint ?? "",
       "followups",
       "category",
       categoryId,
@@ -1716,7 +1715,7 @@ export async function trainMentor(
   classifierLambdaEndpoint?: string,
   ping?: boolean
 ): Promise<AsyncJob> {
-  return execHttp("POST", urljoin(classifierLambdaEndpoint, "train"), {
+  return execHttp("POST", urljoin(classifierLambdaEndpoint ?? "", "train"), {
     axiosConfig: {
       data: { mentor: mentorId, ping: ping || false },
     },
@@ -2618,19 +2617,23 @@ export async function importMentor(
   accessToken: string,
   uploadLambdaEndpoint?: string
 ): Promise<void> {
-  return execHttp("POST", urljoin(uploadLambdaEndpoint, "/transfer/mentor"), {
-    axiosConfig: {
-      data: JSON.stringify({
-        mentor: mentor,
-        mentorExportJson: json,
-        replacedMentorDataChanges: replacedMentorDataChanges,
-      }),
-      headers: {
-        "Content-Type": "application/json",
+  return execHttp(
+    "POST",
+    urljoin(uploadLambdaEndpoint ?? "", "/transfer/mentor"),
+    {
+      axiosConfig: {
+        data: JSON.stringify({
+          mentor: mentor,
+          mentorExportJson: json,
+          replacedMentorDataChanges: replacedMentorDataChanges,
+        }),
+        headers: {
+          "Content-Type": "application/json",
+        },
       },
-    },
-    accessToken,
-  });
+      accessToken,
+    }
+  );
 }
 
 export async function fetchMentors(

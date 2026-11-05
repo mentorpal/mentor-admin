@@ -1,4 +1,11 @@
+/*
+This software is Copyright ©️ 2020 The University of Southern California. All Rights Reserved. 
+Permission to use, copy, modify, and distribute this software and its documentation for educational, research and non-profit purposes, without fee, and without a written agreement is hereby granted, provided that the above copyright notice and subject to the full license file found in the root of this software deliverable. Permission to make commercial use of this software may be obtained by contacting:  USC Stevens Center for Innovation University of Southern California 1150 S. Olive Street, Suite 2300, Los Angeles, CA 90115, USA Email: accounting@stevens.usc.edu
+
+The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
+*/
 import React, { useEffect, useState } from "react";
+import { Routes, Route } from "react-router-dom";
 import {
   createTheme,
   ThemeProvider,
@@ -6,25 +13,9 @@ import {
 } from "@mui/material/styles";
 import { Provider } from "react-redux";
 import { store } from "store/store";
-
-import "video.js/dist/video-js.css";
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import videojs from "video.js";
-import "webrtc-adapter";
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import RecordRTC from "recordrtc";
-import "videojs-record/dist/css/videojs.record.css";
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import Record from "videojs-record/dist/videojs.record.js";
-import "styles/layout.css";
-import { loadSentry } from "./src/helpers";
 import { useAppSelector } from "store/hooks";
 import { NotificationDialog } from "components/dialog";
-
-if (process.env.IS_SENTRY_ENABLED === "true") {
-  console.log("Loading sentry");
-  loadSentry();
-}
+import { appRoutes } from "app-routes";
 
 const theme = createTheme({
   palette: {
@@ -44,7 +35,11 @@ const allowedAdminDomains = [
   "mentorpal.org",
 ];
 
-const WarnFailedUpload = ({ children }) => {
+const WarnFailedUpload = ({
+  children,
+}: {
+  children: React.ReactNode;
+}): JSX.Element => {
   const [userClosed, setUserClosed] = useState(false);
   const fileFailed = useAppSelector((state) => state.uploads.warnFailedUpload);
 
@@ -64,7 +59,11 @@ const WarnFailedUpload = ({ children }) => {
   );
 };
 
-const WarnExitPageDuringUpload = ({ children }) => {
+const WarnExitPageDuringUpload = ({
+  children,
+}: {
+  children: React.ReactNode;
+}): JSX.Element => {
   const [displayLeavingDialog, setDisplayLeavingDialog] = useState(false);
   const uploadsInitializing = useAppSelector(
     (state) => state.uploads.uploadsInitializing
@@ -77,9 +76,8 @@ const WarnExitPageDuringUpload = ({ children }) => {
     initBeforeUnLoad(uploadsInitializing.length > 0);
   }, [uploadsInitializing]);
 
-  const initBeforeUnLoad = (showExitPrompt) => {
+  const initBeforeUnLoad = (showExitPrompt: boolean) => {
     window.onbeforeunload = (event) => {
-      // Show prompt based on state
       if (showExitPrompt) {
         setDisplayLeavingDialog(true);
         const e = event || window.event;
@@ -110,7 +108,7 @@ const WarnExitPageDuringUpload = ({ children }) => {
   );
 };
 
-const App = ({ element }) => {
+export function App(): JSX.Element {
   useEffect(() => {
     const host = location.hostname;
     if (!allowedAdminDomains.includes(host)) {
@@ -128,15 +126,16 @@ const App = ({ element }) => {
       <ThemeProvider theme={theme}>
         <Provider store={store}>
           <WarnExitPageDuringUpload>
-            <WarnFailedUpload>{element}</WarnFailedUpload>
+            <WarnFailedUpload>
+              <Routes>
+                {appRoutes.map(({ path, Component }) => (
+                  <Route key={path} path={path} element={<Component />} />
+                ))}
+              </Routes>
+            </WarnFailedUpload>
           </WarnExitPageDuringUpload>
         </Provider>
       </ThemeProvider>
     </StyledEngineProvider>
   );
-};
-
-// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-export const wrapRootElement = ({ element }) => {
-  return <App element={element} />;
-};
+}

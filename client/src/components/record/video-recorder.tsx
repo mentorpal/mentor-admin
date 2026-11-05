@@ -47,7 +47,8 @@ function VideoRecorder(props: {
   const [recordedVideo, setRecordedVideo] = useState<File>();
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const { segmentVideoAndDrawToCanvas } = useWithVideoSegmentation();
+  const { segmentVideoAndDrawToCanvas } =
+    useWithVideoSegmentation(isVirtualBgMentor);
   const { aspectRatio: vbgAspectRatio } = useWithImage(virtualBackgroundUrl);
   const [uploadCounter, setUploaderCounter] = useState(0);
   const videoRecordMimeType = isVirtualBgMentor
@@ -279,27 +280,36 @@ function VideoRecorder(props: {
     };
   }, []);
 
-  // When start recording is pressed, this interval begins
-  useInterval(
-    () => {
-      if (!videoRef.current) {
+  useEffect(() => {
+    const video = videoRef.current;
+    if (
+      !isVirtualBgMentor ||
+      !videoRecorder ||
+      !cameraIsOn ||
+      !video?.srcObject
+    ) {
+      return;
+    }
+    let cancelled = false;
+    let frameId: number;
+    function drawFrame() {
+      if (cancelled || !video) {
         return;
       }
-      // Need to make sure a frame exists before we try to segment anything
-      videoRef.current.requestVideoFrameCallback(() => {
-        if (!videoRef.current) {
-          return;
-        }
-        segmentVideoAndDrawToCanvas(videoRef.current);
-      });
-    },
-    isVirtualBgMentor &&
-      videoRecorder &&
-      cameraIsOn &&
-      videoRef.current?.srcObject
-      ? 33
-      : null
-  );
+      segmentVideoAndDrawToCanvas(video);
+      frameId = video.requestVideoFrameCallback(drawFrame);
+    }
+    frameId = video.requestVideoFrameCallback(drawFrame);
+    return () => {
+      cancelled = true;
+      video.cancelVideoFrameCallback(frameId);
+    };
+  }, [
+    isVirtualBgMentor,
+    videoRecorder,
+    cameraIsOn,
+    segmentVideoAndDrawToCanvas,
+  ]);
 
   function getMinSecondText(minSeconds: number): string {
     const minutes = Math.trunc(minSeconds / 60);

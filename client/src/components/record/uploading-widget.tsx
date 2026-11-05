@@ -22,9 +22,9 @@ import {
   areAllTasksDone,
   isATaskCancelled,
 } from "hooks/graphql/upload-status-helpers";
-import { navigate } from "gatsby-link";
 import { urlBuild } from "helpers";
 import { UploadTask, UseWithRecordState } from "types";
+import { useNavigate } from "react-router-dom";
 
 function UploadingView(props: {
   recordState: UseWithRecordState;
@@ -32,6 +32,8 @@ function UploadingView(props: {
   onRecordPage: boolean;
   setUploadWidgetVisible: (b: boolean) => void;
 }): JSX.Element {
+  const navigate = useNavigate();
+
   const [navigateQuestionId, setNavigateQuestionId] = useState<string>("");
   const [warningPopupOpen, setWarningPopupOpen] = useState<boolean>(false);
   const { recordState, visible, onRecordPage, setUploadWidgetVisible } = props;

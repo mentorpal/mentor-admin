@@ -4,7 +4,6 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-import { navigate } from "gatsby";
 import React, { useState, useEffect, useCallback } from "react";
 import {
   AppBar,
@@ -58,6 +57,7 @@ import { useWithConfig } from "store/slices/config/useWithConfig";
 import { BuildMentorTooltip } from "./build-mentor-tooltip";
 import { MentorConfig } from "types-gql";
 import { useAppSelector } from "store/hooks";
+import { useNavigate } from "react-router-dom";
 
 const useStyles = makeStyles({ name: { HomePage } })((theme: Theme) => ({
   toolbar: {
@@ -128,6 +128,8 @@ function HomePage(props: {
   search: { subject?: string };
   user: User;
 }): JSX.Element {
+  const navigate = useNavigate();
+
   const reviewAnswerState = useWithReviewAnswerState(
     props.accessToken,
     props.search

@@ -4,7 +4,6 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-import { navigate } from "gatsby";
 import React, { useEffect, useRef, useState } from "react";
 import { v4 as uuid } from "uuid";
 import {
@@ -71,6 +70,7 @@ import {
   getOrgHomeUrl,
 } from "../helpers";
 import { uuid4 } from "@sentry/utils";
+import { useNavigate } from "react-router-dom";
 
 const reservedSubdomains = [
   "newdev",
@@ -531,6 +531,8 @@ function OrganizationItem(props: {
   i: number;
   onEdit: (org: Organization) => void;
 }): JSX.Element {
+  const navigate = useNavigate();
+
   const { org, user } = props;
   const { classes: styles } = useStyles();
   const hasEditPermission = canEditOrganization(org, user);

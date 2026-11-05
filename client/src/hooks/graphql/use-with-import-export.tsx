@@ -165,9 +165,9 @@ export function useWithImportExport(): UseWithImportExport {
     }
     const json = {
       ...importedJson,
-      subjects: [...importedJson.subjects] || [],
-      questions: [...importedJson.questions] || [],
-      answers: [...importedJson.answers] || [],
+      subjects: [...importedJson.subjects],
+      questions: [...importedJson.questions],
+      answers: [...importedJson.answers],
     };
 
     const idx = json.subjects.findIndex((s) => s._id === subject._id);
@@ -240,9 +240,9 @@ export function useWithImportExport(): UseWithImportExport {
     }
     const json = {
       ...importedJson,
-      subjects: [...importedJson.subjects] || [],
-      questions: [...importedJson.questions] || [],
-      answers: [...importedJson.answers] || [],
+      subjects: [...importedJson.subjects],
+      questions: [...importedJson.questions],
+      answers: [...importedJson.answers],
     };
     // if the replacement question is already referenced elsewhere in the import, remove it so we don't include it twice
     let rIdx = json.questions.findIndex((q) => q._id === replacement._id);
@@ -276,9 +276,9 @@ export function useWithImportExport(): UseWithImportExport {
     // Do the same for preview
     const preview = {
       ...importPreview,
-      subjects: [...importPreview.subjects] || [],
-      questions: [...importPreview.questions] || [],
-      answers: [...importPreview.answers] || [],
+      subjects: [...importPreview.subjects],
+      questions: [...importPreview.questions],
+      answers: [...importPreview.answers],
     };
     // Remove imported new question from preview
     const previewQIdx = preview.questions.findIndex(
@@ -332,9 +332,9 @@ export function useWithImportExport(): UseWithImportExport {
     // update json with new question category
     const json = {
       ...importedJson,
-      subjects: [...importedJson.subjects] || [],
-      questions: [...importedJson.questions] || [],
-      answers: [...importedJson.answers] || [],
+      subjects: [...importedJson.subjects],
+      questions: [...importedJson.questions],
+      answers: [...importedJson.answers],
     };
 
     for (let i = 0; i < json.subjects.length; i++) {
@@ -351,9 +351,9 @@ export function useWithImportExport(): UseWithImportExport {
     // update preview with new question category
     const preview = {
       ...importPreview,
-      subjects: [...importPreview.subjects] || [],
-      questions: [...importPreview.questions] || [],
-      answers: [...importPreview.answers] || [],
+      subjects: [...importPreview.subjects],
+      questions: [...importPreview.questions],
+      answers: [...importPreview.answers],
     };
     for (const s of preview.subjects) {
       if (!s.importData) {
@@ -385,9 +385,9 @@ export function useWithImportExport(): UseWithImportExport {
     }
     const json = {
       ...importedJson,
-      subjects: [...importedJson.subjects] || [],
-      questions: [...importedJson.questions] || [],
-      answers: [...importedJson.answers] || [],
+      subjects: [...importedJson.subjects],
+      questions: [...importedJson.questions],
+      answers: [...importedJson.answers],
     };
 
     // Find and remove the question from current subject in import
@@ -447,9 +447,9 @@ export function useWithImportExport(): UseWithImportExport {
     // Do the same for preview
     const preview = {
       ...importPreview,
-      subjects: [...importPreview.subjects] || [],
-      questions: [...importPreview.questions] || [],
-      answers: [...importPreview.answers] || [],
+      subjects: [...importPreview.subjects],
+      questions: [...importPreview.questions],
+      answers: [...importPreview.answers],
     };
     for (const s of preview.subjects) {
       const targetQIdx = s.importData?.questions.findIndex(
@@ -538,9 +538,9 @@ export function useWithImportExport(): UseWithImportExport {
     }
     const json = {
       ...importedJson,
-      subjects: [...importedJson.subjects] || [],
-      questions: [...importedJson.questions] || [],
-      answers: [...importedJson.answers] || [],
+      subjects: [...importedJson.subjects],
+      questions: [...importedJson.questions],
+      answers: [...importedJson.answers],
     };
     for (const s of json.subjects) {
       const subjQuestionIdx = s.questions.findIndex(
@@ -565,9 +565,9 @@ export function useWithImportExport(): UseWithImportExport {
 
     const preview = {
       ...importPreview,
-      subjects: [...importPreview.subjects] || [],
-      questions: [...importPreview.questions] || [],
-      answers: [...importPreview.answers] || [],
+      subjects: [...importPreview.subjects],
+      questions: [...importPreview.questions],
+      answers: [...importPreview.answers],
     };
     for (const s of preview.subjects) {
       if (!s.importData) {
@@ -677,9 +677,9 @@ export function useWithImportExport(): UseWithImportExport {
     // update answer previews by
     const preview = {
       ...importPreview,
-      subjects: [...importPreview.subjects] || [],
-      questions: [...importPreview.questions] || [],
-      answers: [...importPreview.answers] || [],
+      subjects: [...importPreview.subjects],
+      questions: [...importPreview.questions],
+      answers: [...importPreview.answers],
     };
     // find answer based on unqiue question identifier
     const previewAnswersIdx = preview.answers.findIndex(
@@ -701,9 +701,9 @@ export function useWithImportExport(): UseWithImportExport {
     // update json with new answer
     const json = {
       ...importedJson,
-      subjects: [...importedJson.subjects] || [],
-      questions: [...importedJson.questions] || [],
-      answers: [...importedJson.answers] || [],
+      subjects: [...importedJson.subjects],
+      questions: [...importedJson.questions],
+      answers: [...importedJson.answers],
     };
     const answerIdx = json.answers.findIndex(
       (a) => a.question._id === replacingAnswer.question._id
@@ -733,9 +733,9 @@ export function useWithImportExport(): UseWithImportExport {
     // update json with new subject type
     const json = {
       ...importedJson,
-      subjects: [...importedJson.subjects] || [],
-      questions: [...importedJson.questions] || [],
-      answers: [...importedJson.answers] || [],
+      subjects: [...importedJson.subjects],
+      questions: [...importedJson.questions],
+      answers: [...importedJson.answers],
     };
     for (const s of json.subjects) {
       if (s._id === subjectToUpdate._id) {
@@ -745,9 +745,9 @@ export function useWithImportExport(): UseWithImportExport {
     setImportJson(json);
     const preview = {
       ...importPreview,
-      subjects: [...importPreview.subjects] || [],
-      questions: [...importPreview.questions] || [],
-      answers: [...importPreview.answers] || [],
+      subjects: [...importPreview.subjects],
+      questions: [...importPreview.questions],
+      answers: [...importPreview.answers],
     };
     for (const s of preview.subjects) {
       if (s.importData?._id === subjectToUpdate._id) {
@@ -772,9 +772,9 @@ export function useWithImportExport(): UseWithImportExport {
     }
     const json = {
       ...importedJson,
-      subjects: [...importedJson.subjects] || [],
-      questions: [...importedJson.questions] || [],
-      answers: [...importedJson.answers] || [],
+      subjects: [...importedJson.subjects],
+      questions: [...importedJson.questions],
+      answers: [...importedJson.answers],
     };
     for (const q of json.questions) {
       if (q._id === questionToUpdate._id) {
@@ -792,9 +792,9 @@ export function useWithImportExport(): UseWithImportExport {
     setImportJson(json);
     const preview = {
       ...importPreview,
-      subjects: [...importPreview.subjects] || [],
-      questions: [...importPreview.questions] || [],
-      answers: [...importPreview.answers] || [],
+      subjects: [...importPreview.subjects],
+      questions: [...importPreview.questions],
+      answers: [...importPreview.answers],
     };
     const qIdx = preview.questions.findIndex(
       (q) => q.importData?._id === questionToUpdate._id

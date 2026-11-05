@@ -4,7 +4,6 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-import { navigate } from "gatsby";
 import { useEffect, useState } from "react";
 import {
   Answer,
@@ -28,6 +27,7 @@ import useQuestions from "store/slices/questions/useQuestions";
 import { LoadingStatus } from "./generic-loading-reducer";
 import { useAppSelector } from "store/hooks";
 import { useWithUploadStatus } from "./use-with-upload-status";
+import { useNavigate } from "react-router-dom";
 
 //order of the slides
 export enum SetupStepType {
@@ -78,6 +78,8 @@ export function useWithSetup(
   props: { accessToken: string },
   search?: { i?: string }
 ): UseWithSetup {
+  const navigate = useNavigate();
+
   const { accessToken } = props;
   const [initialSetupStep] = useState<number>(
     search?.i ? parseInt(search.i) : 0

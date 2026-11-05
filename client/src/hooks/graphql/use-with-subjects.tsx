@@ -29,7 +29,7 @@ export function useWithSubjects(): UseStaticDataConnection<SubjectGQL> {
     reloadData,
   } = useWithStaticDataConnection<SubjectGQL>(fetch);
 
-  function fetch() {
+  function fetch(): ReturnType<typeof fetchSubjects> {
     return fetchSubjects(searchParams);
   }
 

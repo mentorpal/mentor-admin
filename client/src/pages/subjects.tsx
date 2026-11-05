@@ -31,13 +31,13 @@ import NavBar from "components/nav-bar";
 import withAuthorizationOnly from "hooks/wrap-with-authorization-only";
 import { useWithSubjects } from "hooks/graphql/use-with-subjects";
 import { canEditContent, copyAndRemove } from "helpers";
-import { navigate } from "gatsby";
 import withLocation from "wrap-with-location";
 import { useMentorEdits } from "store/slices/mentor/useMentorEdits";
 import useActiveMentor from "store/slices/mentor/useActiveMentor";
 import ButtonGroupDropdown from "components/ButtonGroupDropdown";
 import { MentorConfig, convertSubjectGQL } from "types-gql";
 import { useWithLogin } from "store/slices/login/useWithLogin";
+import { useNavigate } from "react-router-dom";
 
 const useStyles = makeStyles({ name: { SubjectsPage } })((theme: Theme) => ({
   root: {
@@ -105,6 +105,8 @@ function SubjectsPage(props: {
     back?: string;
   };
 }): JSX.Element {
+  const navigate = useNavigate();
+
   const { classes } = useStyles();
   const {
     isLoading: isMentorLoading,

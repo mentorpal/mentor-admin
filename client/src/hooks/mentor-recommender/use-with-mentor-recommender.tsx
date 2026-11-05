@@ -4,10 +4,10 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-import { navigate } from "gatsby";
 import { isAnswerComplete, launchMentor, urlBuild } from "helpers";
 import { useEffect, useState } from "react";
 import { Mentor, SetupScreen, UtteranceName } from "types";
+import { useNavigate } from "react-router-dom";
 import {
   Phase,
   ProductionRule,
@@ -51,6 +51,8 @@ export enum RecommendationName {
 export function useWithMentorRecommender(
   trainMentor?: () => void
 ): UseWithMentorRecommender {
+  const navigate = useNavigate();
+
   const { mentorData, mentorUtteranceVideos, numberOfTrendingAnswers } =
     useWithMentorRecommenderData();
   const [recommender, setRecommender] =
