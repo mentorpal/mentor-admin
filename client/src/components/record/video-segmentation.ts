@@ -4,107 +4,119 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-import "@tensorflow/tfjs-core";
-import "@tensorflow/tfjs-backend-webgl";
-import "@mediapipe/selfie_segmentation";
-import { useEffect, useState } from "react";
-import { Results, SelfieSegmentation } from "@mediapipe/selfie_segmentation";
+import { useCallback, useEffect, useRef } from "react";
+import type { DrawingUtils, ImageSegmenter } from "@mediapipe/tasks-vision";
+
+const WASM_ROOT =
+  "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@1.2.2/wasm";
+const MODEL_URL =
+  "https://storage.googleapis.com/mediapipe-models/image_segmenter/selfie_segmenter_landscape/float16/1/selfie_segmenter_landscape.tflite";
 
 export interface UseWithVideoSegmentation {
   segmentVideoAndDrawToCanvas: (videoElement: HTMLVideoElement) => void;
 }
 
-export function useWithVideoSegmentation(): UseWithVideoSegmentation {
-  const [selfieSegmenter, setSelfieSegmenter] = useState<SelfieSegmentation>();
+export function useWithVideoSegmentation(
+  enabled = true
+): UseWithVideoSegmentation {
+  const resources = useRef<{
+    segmenter: ImageSegmenter;
+    drawing: DrawingUtils;
+    canvas: HTMLCanvasElement;
+    lastTimestamp: number;
+  }>();
 
   useEffect(() => {
-    createSelfieSegmentation().then((_selfieSegmenter) => {
-      setSelfieSegmenter(_selfieSegmenter);
-    });
-  }, []);
-
-  useEffect(() => {
-    if (!selfieSegmenter) {
+    if (!enabled) {
       return;
     }
-    selfieSegmenter.onResults(onResults);
-  }, [selfieSegmenter]);
+    let cancelled = false;
+    let segmenter: ImageSegmenter | undefined;
+    let drawing: DrawingUtils | undefined;
 
-  function getCanvas() {
-    const canvas = document.querySelector("[data-cy=draw-canvas]");
-    return canvas;
-  }
-
-  function getCanvasContext(
-    canvas: HTMLCanvasElement
-  ): CanvasRenderingContext2D | null {
-    if (canvas == null) {
-      return null;
-    }
-    return canvas.getContext("2d");
-  }
-
-  async function createSelfieSegmentation(): Promise<SelfieSegmentation> {
-    const selfieSegmentation = new SelfieSegmentation({
-      locateFile: (file: string) => {
-        return `https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation@0.1/${file}`;
-      },
-    });
-    selfieSegmentation.setOptions({
-      modelSelection: 1,
-    });
-    await selfieSegmentation.initialize();
-    return selfieSegmentation;
-  }
-
-  function onResults(results: Results): void {
-    if (!selfieSegmenter) {
-      // If no segmenter, try to create it and set to state
-      return;
-    }
-    const canvas = getCanvas() as HTMLCanvasElement;
-    const canvasCtx = getCanvasContext(canvas);
-    if (canvasCtx == null) {
-      return;
-    }
-    canvasCtx.save();
-    canvasCtx.clearRect(0, 0, canvas.width, canvas.height);
-    canvasCtx.drawImage(
-      results.segmentationMask,
-      0,
-      0,
-      canvas.width,
-      canvas.height
-    );
-    // Only overwrite existing pixels.
-    canvasCtx.globalCompositeOperation = "source-in";
-    canvasCtx.fillStyle = "#00FF00";
-    canvasCtx.fillRect(0, 0, canvas.width, canvas.height);
-
-    // Only overwrite missing pixels.
-    canvasCtx.drawImage(results.image, 0, 0, canvas.width, canvas.height);
-    canvasCtx.restore();
-  }
-
-  async function segmentVideoAndDrawToCanvas(
-    videoElement: HTMLVideoElement
-  ): Promise<void> {
-    if (!selfieSegmenter) {
-      // If no segmenter, try to create it and set to state
-      return;
-    }
-    if (!videoElement) {
-      return;
-    }
-    await selfieSegmenter
-      .send({
-        image: videoElement,
-      })
-      .catch((error) => {
-        console.error(error);
+    async function initialize(): Promise<void> {
+      const canvas = document.querySelector<HTMLCanvasElement>(
+        "[data-cy=draw-canvas]"
+      );
+      const context = canvas?.getContext("2d");
+      if (!canvas || !context) {
+        return;
+      }
+      const { FilesetResolver, ImageSegmenter, DrawingUtils } = await import(
+        "@mediapipe/tasks-vision"
+      );
+      if (cancelled) {
+        return;
+      }
+      const files = await FilesetResolver.forVisionTasks(WASM_ROOT);
+      if (cancelled) {
+        return;
+      }
+      const inferenceCanvas = document.createElement("canvas");
+      const gpuContext = inferenceCanvas.getContext("webgl2");
+      if (!gpuContext) {
+        throw new Error("Video segmentation requires WebGL 2");
+      }
+      const created = await ImageSegmenter.createFromOptions(files, {
+        canvas: inferenceCanvas,
+        baseOptions: { modelAssetPath: MODEL_URL, delegate: "GPU" },
+        runningMode: "VIDEO",
+        outputConfidenceMasks: true,
+        outputCategoryMask: false,
       });
-  }
-  return {
-    segmentVideoAndDrawToCanvas,
-  };
+      if (cancelled) {
+        created.close();
+        return;
+      }
+      segmenter = created;
+      drawing = new DrawingUtils(context, gpuContext);
+      resources.current = { segmenter, drawing, canvas, lastTimestamp: -1 };
+    }
+
+    initialize().catch((error) => {
+      if (!cancelled) {
+        console.error("Failed to initialize video segmentation", error);
+      }
+    });
+    return () => {
+      cancelled = true;
+      resources.current = undefined;
+      drawing?.close();
+      segmenter?.close();
+    };
+  }, [enabled]);
+
+  const segmentVideoAndDrawToCanvas = useCallback(
+    (videoElement: HTMLVideoElement): void => {
+      const current = resources.current;
+      if (
+        !current ||
+        videoElement.readyState < HTMLMediaElement.HAVE_CURRENT_DATA
+      ) {
+        return;
+      }
+      // MediaPipe requires strictly increasing timestamps (can't be the same)
+      const timestamp = Math.floor(performance.now());
+      if (timestamp <= current.lastTimestamp) {
+        return;
+      }
+      current.lastTimestamp = timestamp;
+      current.segmenter.segmentForVideo(videoElement, timestamp, (result) => {
+        const foregroundMask = result.confidenceMasks?.[0];
+        if (!foregroundMask) {
+          return;
+        }
+        const context = current.canvas.getContext("2d");
+        context?.clearRect(0, 0, current.canvas.width, current.canvas.height);
+        current.drawing.drawConfidenceMask(
+          foregroundMask,
+          [0, 0, 0, 0],
+          videoElement
+        );
+      });
+    },
+    []
+  );
+
+  return { segmentVideoAndDrawToCanvas };
 }

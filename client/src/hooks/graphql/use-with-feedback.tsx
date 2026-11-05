@@ -30,7 +30,7 @@ export function useWithFeedback(
     setSearchParams,
   } = useWithDataConnection<UserQuestion>(fetch, inputSearchParams);
 
-  function fetch() {
+  function fetch(): ReturnType<typeof fetchUserQuestions> {
     return fetchUserQuestions(searchParams);
   }
 

@@ -4,3 +4,4 @@ public
 static
 build
 .cypress-*
+.venv

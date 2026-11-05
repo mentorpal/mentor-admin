@@ -27,7 +27,7 @@ export function useWithKeywords(): UseDataConnection<Keyword> {
     setSearchParams,
   } = useWithDataConnection<Keyword>(fetch, { limit: 9999 });
 
-  function fetch() {
+  function fetch(): ReturnType<typeof fetchKeywords> {
     return fetchKeywords(searchParams);
   }
 

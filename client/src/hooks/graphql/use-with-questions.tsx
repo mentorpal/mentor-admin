@@ -31,7 +31,7 @@ export function useWithQuestions(
     setSearchParams,
   } = useWithDataConnection<Question>(fetch, initalSearchParams);
 
-  function fetch() {
+  function fetch(): ReturnType<typeof fetchQuestions> {
     return fetchQuestions(searchParams);
   }
 
